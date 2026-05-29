@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Importado para salvar na memória
 
 import {
     StyleSheet,
@@ -29,9 +30,6 @@ export default function RegisterScreen({ navigation }) {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    // Substitua pela URL que aparece no seu dashboard da Vercel
-    const VERCEL_URL = 'https://ursoburgers.vercel.app';
-
     const handleRegister = async () => {
         // 1. Validações básicas
         if (!name || !phone || !email || !address || !password) {
@@ -45,32 +43,25 @@ export default function RegisterScreen({ navigation }) {
         }
 
         try {
-            // 2. Chamada para a API da Vercel
-            const response = await fetch(`${VERCEL_URL}/api/cadastro`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name,
-                    phone,
-                    email,
-                    address,
-                    password
-                }),
-            });
+            // 2. Criamos o objeto com os dados do usuário
+            const userData = {
+                name,
+                phone,
+                email: email.toLowerCase().trim(), // Remove espaços e deixa em minúsculo para evitar erros no login
+                address,
+                password
+            };
 
-            const data = await response.json();
+            // 3. Salvamos localmente na memória do aparelho
+            // Usamos uma chave única '@ursoburgers_user' para identificar esses dados depois
+            await AsyncStorage.setItem('@ursoburgers_user', JSON.stringify(userData));
 
-            if (response.ok) {
-                Alert.alert('Sucesso', 'Conta criada no Vercel Postgres!');
-                navigation.navigate('Login');
-            } else {
-                Alert.alert('Erro no Banco', data.error || 'Erro ao cadastrar.');
-            }
+            Alert.alert('Sucesso', 'Conta criada com sucesso (salva no dispositivo)!');
+            navigation.navigate('Login');
+            
         } catch (error) {
             console.error(error);
-            Alert.alert('Erro de Conexão', 'Não foi possível conectar à API da Vercel.');
+            Alert.alert('Erro', 'Não foi possível salvar os dados no aparelho.');
         }
     };
 
