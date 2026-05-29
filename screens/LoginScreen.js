@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
         fontSize: 15
     },
     registerButtonText: {
-        color: '#ff6600',
+        color: '#ff6601',
         fontWeight: 'bold',
         marginLeft: 5,
         fontSize: 15
